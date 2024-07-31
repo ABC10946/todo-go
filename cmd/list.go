@@ -1,11 +1,14 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
 	"fmt"
+	"os"
+	"todo-go/db"
+
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/spf13/cobra"
 )
@@ -22,6 +25,23 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("list called")
+
+		dbHandler, err := db.Connect()
+		if err != nil {
+			panic("Could not connect to the database")
+		}
+
+		var todos []db.Todo
+
+		dbHandler.Find(&todos)
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"ID", "Title", "Description", "Completed"})
+
+		for _, todo := range todos {
+			table.Append([]string{fmt.Sprintf("%d", todo.ID), todo.Title, todo.Description, fmt.Sprintf("%v", todo.Completed)})
+		}
+		table.Render()
 	},
 }
 
