@@ -1,11 +1,11 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
 	"fmt"
+	"todo-go/db"
 
 	"github.com/spf13/cobra"
 )
@@ -22,6 +22,28 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("edit called")
+
+		dbHandler, err := db.Connect()
+		if err != nil {
+			panic("Could not connect to the database")
+		}
+
+		existTodo := db.Todo{}
+		dbHandler.First(&existTodo, id)
+		if title != "" {
+			existTodo.Title = title
+		}
+		if description != "" {
+			existTodo.Description = description
+		}
+
+		existTodo.Completed = completed
+		result := dbHandler.Save(&existTodo)
+		if result.Error != nil {
+			panic("Could not update the todo")
+		}
+
+		fmt.Println("Todo updated successfully")
 	},
 }
 
@@ -37,4 +59,12 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// editCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	editCmd.Flags().StringVar(&title, "title", "", "Title of the todo")
+	editCmd.Flags().StringVar(&description, "description", "", "Description of the todo")
+	editCmd.Flags().BoolVar(&completed, "completed", false, "Status of the todo")
+
+	editCmd.Flags().IntVar(&id, "id", 0, "ID of the todo")
+	editCmd.MarkFlagRequired("id")
+
 }
