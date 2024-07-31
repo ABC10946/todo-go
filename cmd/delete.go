@@ -1,13 +1,17 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
 	"fmt"
+	"todo-go/db"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	id int
 )
 
 // deleteCmd represents the delete command
@@ -22,6 +26,17 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("delete called")
+		dbHandler, err := db.Connect()
+		if err != nil {
+			panic("Could not connect to the database")
+		}
+
+		res := dbHandler.Delete(&db.Todo{}, id)
+		if res.Error != nil {
+			panic("Could not delete the todo")
+		}
+
+		fmt.Println("Todo deleted successfully")
 	},
 }
 
@@ -37,4 +52,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// deleteCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	deleteCmd.Flags().IntVar(&id, "id", 0, "ID of the todo")
+	deleteCmd.MarkFlagRequired("id")
 }
