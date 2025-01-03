@@ -1,0 +1,1 @@
+export GITHUB_TOKEN=$(vault kv get -format=json kv/github|jq -r '.data.data."goreleaser_token_todo-go"')
